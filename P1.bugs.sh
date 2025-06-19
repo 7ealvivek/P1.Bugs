@@ -68,8 +68,8 @@ fi
 # --- Set Performance Flags Based on Profile ---
 echo "[*] Using performance profile: ${C_GREEN}${PROFILE}${C_RESET}"
 case "$PROFILE" in
-    safe) PERF_FLAGS="-timeout 15 -c 25 -bs 25 -rl 50" ;;
-    aggressive) PERF_FLAGS="-timeout 10 -c 50 -bs 50 -rl 200" ;;
+    safe) PERF_FLAGS="-timeout 18 -c 25 -bs 25 -rl 310" ;;
+    aggressive) PERF_FLAGS="-timeout 18 -c 50 -bs 100 -rl 340" ;;
     *) echo -e "${C_YELLOW}[!] Invalid profile '$PROFILE'. Use 'safe' or 'aggressive'.${C_RESET}" >&2; usage ;;
 esac
 
