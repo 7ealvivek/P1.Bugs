@@ -62,6 +62,9 @@ Summary written to nuclei-results/targets_vulns.txt
 ## Author
 
 Vivek Kashyap
+
 Bugcrowd: (https://bugcrowd.com/realvivek)
+
 X (Twitter): (https://x.com/starkcharry)
+
 GitHub: (https://github.com/7ealvivek)
