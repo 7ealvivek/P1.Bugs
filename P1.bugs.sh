@@ -24,7 +24,7 @@ display_banner() {
 ░▒▓█▓▒░           ░▒▓█▓▒░ ░▒▓██▓▒░ ░▒▓███████▓▒░   ░▒▓██████▓▒░   ░▒▓██████▓▒░  ░▒▓███████▓▒░
 
 EOF
-    local details="${C_CYAN}by realvivek${C_RESET} | ${C_GREEN}Bugcrowd:${C_RESET} bugcrowd.com/realvivek | ${C_GREEN}X:${C_RESET} x.com/starkcharry | ${C_GREEN}GitHub:${C_RESET} github.com/7ealvivek"
+    local details="${C_CYAN}by Vivek Kashyap${C_RESET} | ${C_GREEN}Bugcrowd:${C_RESET} bugcrowd.com/realvivek | ${C_GREEN}X:${C_RESET} @starkcharry | ${C_GREEN}GitHub:${C_RESET} @7ealvivek"
     local width=${COLUMNS:-$(tput cols 2>/dev/null || echo 100)}
     local details_len=$(echo -e "$details" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)
     local padding_len=$((width - details_len))
@@ -68,7 +68,7 @@ fi
 # --- Set Performance Flags Based on Profile ---
 echo "[*] Using performance profile: ${C_GREEN}${PROFILE}${C_RESET}"
 case "$PROFILE" in
-    safe) PERF_FLAGS="-timeout 18 -c 25 -bs 25 -rl 310" ;;
+    safe) PERF_FLAGS="-timeout 15 -c 25 -bs 25 -rl 280" ;;
     aggressive) PERF_FLAGS="-timeout 18 -c 50 -bs 100 -rl 340" ;;
     *) echo -e "${C_YELLOW}[!] Invalid profile '$PROFILE'. Use 'safe' or 'aggressive'.${C_RESET}" >&2; usage ;;
 esac
@@ -87,7 +87,8 @@ for path in "${ALL_TEMPLATE_PATHS[@]}"; do nuclei_args+=(-t "$path"); done
 echo -e "${C_YELLOW}[*] Starting Nuclei scan for '$TARGET_FILE' with severity: $SEVERITY${C_RESET}"
 VULN_FOUND_FLAG=0; count_critical=0; count_high=0; count_medium=0; count_low=0; count_info=0
 
-$PROXY_CMD nuclei -l "$TARGET_FILE" -o "$JSON_OUTPUT" -jsonl -silent -severity "$SEVERITY" $PERF_FLAGS "${nuclei_args[@]}" | \
+# THIS IS THE CORRECTED PART: Using Process Substitution '< <(...)' instead of a pipe '|'
+# This ensures the loop runs in the current shell and variable changes are not lost.
 while read -r line; do
     if ! jq -e . >/dev/null 2>&1 <<< "$line"; then continue; fi
     VULN_FOUND_FLAG=1
@@ -110,9 +111,11 @@ while read -r line; do
             echo -e "${formatted_message}\n" >> "$VULN_OUTPUT_FILE"
         fi
     fi
-done
+done < <($PROXY_CMD nuclei -l "$TARGET_FILE" -o "$JSON_OUTPUT" -jsonl -silent -severity "$SEVERITY" $PERF_FLAGS "${nuclei_args[@]}")
+
 
 # --- Final Status Report and Slack Summary Notification ---
+# This part will now have the CORRECT values for all the counters.
 echo -e "${C_GREEN}[*] Scan complete.${C_RESET}"
 summary_text="✅ *Scan Completed for Target File:* \`$(basename "$TARGET_FILE")\`\n\n*Summary of Findings:*\n"
 if [ "$VULN_FOUND_FLAG" -eq 0 ]; then
